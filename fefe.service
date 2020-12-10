@@ -1,0 +1,12 @@
+[Unit]
+Description=fefe matrix bot
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/fefe/venv/bin/python main.py 
+User=fefe
+WorkingDirectory=/home/fefe
+Restart=always
+KillSignal=SIGKILL
