@@ -1,1 +1,3 @@
-hopfenmatrix
+hopfenmatrix~=0.1.9
+feedparser~=6.0.2
+sqlalchemy~=1.3.20
