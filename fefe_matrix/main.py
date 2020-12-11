@@ -20,7 +20,7 @@ async def rss_fetcher(matrix: ApiWrapper, db):
                     db.add(Item(item_id=entry.id))
                     db.commit()
                     for room in [x.room_id for x in db.query(Room).all()]:
-                        message = f"<pre><code>{entry.summary}</pre></code>"
+                        message = f"{entry.summary}"
                         await matrix.send_message(message, room_id=room)
         except Exception as err:
             logger.error(err)
