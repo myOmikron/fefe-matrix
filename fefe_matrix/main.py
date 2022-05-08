@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 import feedparser
-from hopfenmatrix.api_wrapper import ApiWrapper
+from hopfenmatrix.matrix import MatrixBot
 from sqlalchemy import create_engine, String, Column, Integer, desc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 logger = logging.getLogger(__name__)
 
 
-async def rss_fetcher(matrix: ApiWrapper, db):
+async def rss_fetcher(matrix: MatrixBot, db):
     while True:
         try:
             feed = feedparser.parse("https://blog.fefe.de/rss.xml?html")
@@ -28,7 +28,7 @@ async def rss_fetcher(matrix: ApiWrapper, db):
 
 
 def subscribe_command(db):
-    async def callback(matrix: ApiWrapper, room, event):
+    async def callback(matrix: MatrixBot, room, event):
         if event.sender == matrix.client.user:
             return
         rooms = db.query(Room).filter_by(room_id=room.room_id).all()
@@ -43,7 +43,7 @@ def subscribe_command(db):
 
 
 def unsubscribe_command(db):
-    async def callback(matrix: ApiWrapper, room, event):
+    async def callback(matrix: MatrixBot, room, event):
         if event.sender == matrix.client.user:
             return
         rooms = db.query(Room).filter_by(room_id=room.room_id).all()
@@ -58,7 +58,7 @@ def unsubscribe_command(db):
 
 
 async def main(db):
-    matrix = ApiWrapper(display_name="Fefe Bot")
+    matrix = MatrixBot(display_name="Fefe Bot")
     matrix.set_auto_join()
     matrix.register_command(subscribe_command(db), accepted_aliases=["sub", "subscribe"])
     matrix.register_command(unsubscribe_command(db), accepted_aliases=["unsub", "unsubscribe"])
@@ -82,5 +82,5 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
-    
+
     asyncio.get_event_loop().run_until_complete(main(session))
