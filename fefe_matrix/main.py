@@ -26,6 +26,16 @@ async def rss_fetcher(matrix: MatrixBot, db):
             logger.error(err)
         await asyncio.sleep(60)
 
+def help_command(db):
+    async def callback(matrix: MatrixBot, room, event):
+        if event.sender == matrix.client.user:
+            return
+        await matrix.send_message("This is a bot which summarizes blogposts from the fefe blog", room.room_id)
+        await matrix.send_message("!sub or !subscribe = subscribe", room.room_id)
+        await matrix.send_message("!unsub or !unsubscribe = unsubscribe", room.room_id)
+        logger.info(f"Room {room.room_id} has asked for help!")
+    return callback
+
 
 def subscribe_command(db):
     async def callback(matrix: MatrixBot, room, event):
@@ -62,6 +72,7 @@ async def main(db):
     matrix.set_auto_join()
     matrix.register_command(subscribe_command(db), accepted_aliases=["sub", "subscribe"])
     matrix.register_command(unsubscribe_command(db), accepted_aliases=["unsub", "unsubscribe"])
+    matrix.register_command(help_command(db), accepted_aliases=["help", "h"])
     matrix.add_coroutine_callback(rss_fetcher(matrix, db))
     await matrix.start_bot()
 
